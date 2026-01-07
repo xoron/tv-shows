@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.6.3"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/EpisodeCard.tsx","./src/lib/queryClient.ts","./src/pages/EpisodeDetailsPage.tsx","./src/pages/ShowDetailsPage.tsx","./src/providers/QueryProvider.tsx","./src/services/tvmaze.ts","./src/types/index.ts"],"version":"5.6.3"}

@@ -5,6 +5,8 @@ interface EpisodeCardProps {
   episode: Episode;
 }
 
+const fallbackImage = 'https://placehold.co/600x400/666/white?text=No+Image';
+
 export default function EpisodeCard({ episode }: EpisodeCardProps) {
   return (
     <Link
@@ -12,7 +14,7 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
       className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
     >
       <img
-        src={episode.coverImage}
+        src={episode.coverImage || fallbackImage}
         alt={episode.title}
         className="w-full h-48 object-cover"
       />
@@ -25,9 +27,10 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
         <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
           {episode.title}
         </h3>
-        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-          {episode.summary}
-        </p>
+        <p 
+          className="text-sm text-gray-600 mt-2 line-clamp-2"
+          dangerouslySetInnerHTML={{ __html: episode.summary }}
+        />
       </div>
     </Link>
   );

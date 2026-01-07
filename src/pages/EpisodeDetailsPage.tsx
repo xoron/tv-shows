@@ -1,14 +1,46 @@
+import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { episodesData } from '../data/mockData';
+import { getEpisodeDetails } from '../services/tvmaze';
+import { Episode } from '../types';
 
 export default function EpisodeDetailsPage() {
   const { episodeId } = useParams<{ episodeId: string }>();
   
-  const episode = episodesData.find((ep) => ep.id === episodeId);
+  const { data: episode, isLoading, error } = useQuery<Episode | null, Error>({
+    queryKey: ['episode', episodeId],
+    queryFn: () => getEpisodeDetails(Number(episodeId)),
+    enabled: !!episodeId,
+    staleTime: 1000 * 60 * 60,
+  });
+
+  if (!episodeId) {
+    return <Navigate to="/show" replace />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Episode</h2>
+          <p className="text-gray-700">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!episode) {
     return <Navigate to="/show" replace />;
   }
+
+  const fallbackImage = 'https://placehold.co/600x400/666/white?text=No+Image';
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -37,7 +69,7 @@ export default function EpisodeDetailsPage() {
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2">
               <img
-                src={episode.coverImage}
+                src={episode.coverImage || fallbackImage}
                 alt={episode.title}
                 className="w-full h-auto object-cover md:h-full"
               />
@@ -57,9 +89,10 @@ export default function EpisodeDetailsPage() {
               <h2 className="text-lg font-semibold text-gray-800 mb-3">
                 Summary
               </h2>
-              <p className="text-gray-700 leading-relaxed text-base md:text-lg">
-                {episode.summary}
-              </p>
+              <div 
+                className="text-gray-700 leading-relaxed text-base md:text-lg prose"
+                dangerouslySetInnerHTML={{ __html: episode.summary }}
+              />
             </div>
           </div>
         </div>

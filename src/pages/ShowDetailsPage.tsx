@@ -1,7 +1,56 @@
-import { showData, episodesData } from '../data/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { searchShow, getShowEpisodes } from '../services/tvmaze';
+import { Show, Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
 
+const SHOW_NAME = 'Powerpuff Girls';
+
 export default function ShowDetailsPage() {
+  const { data: show, isLoading: isLoadingShow, error: showError } = useQuery<Show | null, Error>({
+    queryKey: ['show', SHOW_NAME],
+    queryFn: () => searchShow(SHOW_NAME),
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const { data: episodes = [], isLoading: isLoadingEpisodes, error: episodesError } = useQuery<Episode[], Error>({
+    queryKey: ['episodes', show?.id],
+    queryFn: () => getShowEpisodes(show!.id),
+    enabled: !!show?.id,
+    staleTime: 1000 * 60 * 60,
+  });
+
+  if (showError) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Show</h2>
+          <p className="text-gray-700">{showError.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoadingShow) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!show) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Show Not Found</h2>
+          <p className="text-gray-700">Could not find "{SHOW_NAME}" in the TVMaze database.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const fallbackImage = 'https://placehold.co/600x900/666/white?text=No+Image';
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -9,18 +58,19 @@ export default function ShowDetailsPage() {
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/3">
               <img
-                src={showData.coverImage}
-                alt={showData.title}
+                src={show.coverImage || fallbackImage}
+                alt={show.title}
                 className="w-full h-auto object-cover md:h-full"
               />
             </div>
             <div className="md:w-2/3 p-6 md:p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {showData.title}
+                {show.title}
               </h1>
-              <p className="text-gray-700 leading-relaxed text-base md:text-lg">
-                {showData.description}
-              </p>
+              <div 
+                className="text-gray-700 leading-relaxed text-base md:text-lg prose"
+                dangerouslySetInnerHTML={{ __html: show.description }}
+              />
             </div>
           </div>
         </div>
@@ -29,11 +79,26 @@ export default function ShowDetailsPage() {
           Episodes
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {episodesData.map((episode) => (
-            <EpisodeCard key={episode.id} episode={episode} />
-          ))}
-        </div>
+        {episodesError ? (
+          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6">
+            <p className="font-semibold">Error loading episodes</p>
+            <p className="text-sm">{episodesError.message}</p>
+          </div>
+        ) : isLoadingEpisodes ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : episodes.length === 0 ? (
+          <div className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center">
+            <p className="text-lg">No episodes available</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {episodes.map((episode) => (
+              <EpisodeCard key={episode.id} episode={episode} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
