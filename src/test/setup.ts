@@ -6,8 +6,8 @@ afterEach(() => {
   cleanup();
 });
 
-global.matchMedia =
-  global.matchMedia ||
+globalThis.matchMedia =
+  globalThis.matchMedia ||
   function () {
     return {
       matches: false,

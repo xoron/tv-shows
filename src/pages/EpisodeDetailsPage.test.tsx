@@ -3,7 +3,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '../test/utils/test-utils';
 import EpisodeDetailsPage from './EpisodeDetailsPage';
 import { getEpisodeDetails } from '../services/tvmaze';
-import { mockTVMazeEpisode } from '../test/mocks/data';
 
 vi.mock('../services/tvmaze');
 
@@ -15,12 +14,12 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return {
     ...actual,
     useParams: () => mockUseParams(),
-    Link: ({ children, to, ...props }: any) => (
+    Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
       <a href={to} {...props}>
         {children}
       </a>
     ),
-    Navigate: ({ to }: any) => {
+    Navigate: ({ to }: { to: string }) => {
       mockNavigate(to);
       return <div data-testid="navigate" data-to={to} />;
     },
@@ -125,7 +124,7 @@ describe('EpisodeDetailsPage', () => {
       renderWithProviders(<EpisodeDetailsPage />);
 
       await waitFor(() => {
-        const image = screen.getByAltText('Test Episode');
+        const image = screen.getByAltText('Cover image for Test Episode - Season 1, Episode 1');
         expect(image).toHaveAttribute('src', 'https://placehold.co/600x400/666/white?text=No+Image');
       });
     });

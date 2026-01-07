@@ -3,7 +3,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '../test/utils/test-utils';
 import ShowDetailsPage from './ShowDetailsPage';
 import { searchShow, getShowEpisodes } from '../services/tvmaze';
-import { mockTVMazeShow, mockTVMazeEpisodes } from '../test/mocks/data';
 
 vi.mock('../services/tvmaze');
 
@@ -83,7 +82,7 @@ describe('ShowDetailsPage', () => {
       renderWithProviders(<ShowDetailsPage />);
 
       await waitFor(() => {
-        const image = screen.getByAltText('Test Show');
+        const image = screen.getByAltText('Cover image for Test Show');
         expect(image).toHaveAttribute('src', 'https://placehold.co/600x900/666/white?text=No+Image');
       });
     });

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { queryClient } from './queryClient';
-import type { QueryClientConfig } from '@tanstack/react-query';
 
 describe('queryClient', () => {
   it('should be a QueryClient instance', () => {

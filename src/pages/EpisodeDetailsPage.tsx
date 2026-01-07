@@ -2,16 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { getEpisodeDetails } from '../services/tvmaze';
 import { Episode } from '../types';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function EpisodeDetailsPage() {
   const { episodeId } = useParams<{ episodeId: string }>();
-  
+
   const { data: episode, isLoading, error } = useQuery<Episode | null, Error>({
     queryKey: ['episode', episodeId],
     queryFn: () => getEpisodeDetails(Number(episodeId)),
     enabled: !!episodeId,
     staleTime: 1000 * 60 * 60,
   });
+
+  useDocumentTitle(episode?.title);
 
   if (!episodeId) {
     return <Navigate to="/show" replace />;
@@ -20,7 +23,14 @@ export default function EpisodeDetailsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+          role="status"
+          aria-label="Loading episode details"
+          aria-busy="true"
+        >
+          <span className="sr-only">Loading episode details</span>
+        </div>
       </div>
     );
   }
@@ -28,7 +38,7 @@ export default function EpisodeDetailsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md" role="alert" aria-live="assertive">
           <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Episode</h2>
           <p className="text-gray-700">{error.message}</p>
         </div>
@@ -47,13 +57,16 @@ export default function EpisodeDetailsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/show"
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors min-h-[44px] min-w-[44px] p-2"
+          aria-label="Back to show details"
+          aria-current="page"
         >
           <svg
             className="w-5 h-5 mr-2"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -65,13 +78,13 @@ export default function EpisodeDetailsPage() {
           Back to Show
         </Link>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden" aria-live="polite" aria-atomic="true">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2">
               <img
                 src={episode.coverImage || fallbackImage}
-                alt={episode.title}
-                className="w-full h-auto object-cover md:h-full"
+                alt={`Cover image for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
+                className="w-full h-48 object-cover md:h-auto md:w-full"
               />
             </div>
             <div className="md:w-1/2 p-6 md:p-8">

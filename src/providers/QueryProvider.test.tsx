@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { QueryProvider } from './QueryProvider';
-import { QueryClient, QueryCache } from '@tanstack/react-query';
 import { queryClient as actualQueryClient } from '../lib/queryClient';
 
 describe('QueryProvider', () => {
@@ -27,7 +26,7 @@ describe('QueryProvider', () => {
   });
 
   it('should use the correct queryClient instance', () => {
-    const { getByText } = render(
+    render(
       <QueryProvider>
         <div>Test Child</div>
       </QueryProvider>

@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../test/utils/test-utils';
 import EpisodeCard from './EpisodeCard';
-import { mockTVMazeEpisode } from '../test/mocks/data';
 
 describe('EpisodeCard', () => {
   it('should render episode card with all data', () => {
@@ -38,7 +37,7 @@ describe('EpisodeCard', () => {
 
     renderWithRouter(<EpisodeCard episode={mockEpisodeWithoutImage} />);
 
-    const image = screen.getByAltText('Test Episode');
+    const image = screen.getByAltText('Cover image for Test Episode');
     expect(image).toHaveAttribute('src', 'https://placehold.co/600x400/666/white?text=No+Image');
   });
 
@@ -56,7 +55,7 @@ describe('EpisodeCard', () => {
 
     renderWithRouter(<EpisodeCard episode={mockEpisodeWithImage} />);
 
-    const image = screen.getByAltText('Test Episode');
+    const image = screen.getByAltText('Cover image for Test Episode');
     expect(image).toHaveAttribute('src', 'https://example.com/image.jpg');
   });
 

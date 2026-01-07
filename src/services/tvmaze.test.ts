@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   searchShow,
   getShowEpisodes,
@@ -12,20 +12,20 @@ import {
   mockTVMazeSearchResponse,
 } from '../test/mocks/data';
 
-const globalFetch = global.fetch;
+const globalFetch = globalThis.fetch;
 
 describe('searchShow', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   afterEach(() => {
-    global.fetch = globalFetch;
+    globalThis.fetch = globalFetch;
   });
 
   it('should return transformed show when search succeeds', async () => {
     const mockResponse = { ok: true, json: async () => [mockTVMazeSearchResponse] };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await searchShow('Powerpuff Girls');
 
@@ -39,7 +39,7 @@ describe('searchShow', () => {
 
   it('should return null when search returns empty results', async () => {
     const mockResponse = { ok: true, json: async () => [] };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await searchShow('NonExistentShow');
 
@@ -52,7 +52,7 @@ describe('searchShow', () => {
       { score: 0.9, show: { ...mockTVMazeShow, id: 2, name: 'Second Show' } },
     ];
     const mockResponse = { ok: true, json: async () => multipleShows };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await searchShow('Multiple Results');
 
@@ -62,31 +62,31 @@ describe('searchShow', () => {
 
   it('should throw error when API request fails', async () => {
     const mockResponse = { ok: false, statusText: 'Not Found' };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await expect(searchShow('TestShow')).rejects.toThrow('API request failed: Not Found');
   });
 
   it('should throw error when network fails', async () => {
-    vi.mocked(global.fetch).mockRejectedValue(new Error('Network Error'));
+    vi.mocked(globalThis.fetch).mockRejectedValue(new Error('Network Error'));
 
     await expect(searchShow('TestShow')).rejects.toThrow('Network Error');
   });
 
   it('should properly encode query parameter', async () => {
     const mockResponse = { ok: true, json: async () => [] };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await searchShow('Test Show with Spaces');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining(encodeURIComponent('Test Show with Spaces'))
     );
   });
 
   it('should throw error when JSON parsing fails', async () => {
     const mockResponse = { ok: true, json: async () => { throw new Error('Invalid JSON'); } };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await expect(searchShow('TestShow')).rejects.toThrow('Invalid JSON');
   });
@@ -94,16 +94,16 @@ describe('searchShow', () => {
 
 describe('getShowEpisodes', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   afterEach(() => {
-    global.fetch = globalFetch;
+    globalThis.fetch = globalFetch;
   });
 
   it('should return array of transformed episodes', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisodes };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getShowEpisodes(1);
 
@@ -122,7 +122,7 @@ describe('getShowEpisodes', () => {
 
   it('should return empty array when no episodes exist', async () => {
     const mockResponse = { ok: true, json: async () => [] };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getShowEpisodes(1);
 
@@ -131,39 +131,39 @@ describe('getShowEpisodes', () => {
 
   it('should throw error when API request fails', async () => {
     const mockResponse = { ok: false, statusText: 'Internal Server Error' };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await expect(getShowEpisodes(1)).rejects.toThrow('API request failed: Internal Server Error');
   });
 
   it('should throw error when network fails', async () => {
-    vi.mocked(global.fetch).mockRejectedValue(new Error('Network Error'));
+    vi.mocked(globalThis.fetch).mockRejectedValue(new Error('Network Error'));
 
     await expect(getShowEpisodes(1)).rejects.toThrow('Network Error');
   });
 
   it('should use correct API endpoint', async () => {
     const mockResponse = { ok: true, json: async () => [] };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await getShowEpisodes(42);
 
-    expect(global.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/shows/42/episodes');
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/shows/42/episodes');
   });
 });
 
 describe('getShowDetails', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   afterEach(() => {
-    global.fetch = globalFetch;
+    globalThis.fetch = globalFetch;
   });
 
   it('should return transformed show details', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeShow };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getShowDetails(1);
 
@@ -177,30 +177,30 @@ describe('getShowDetails', () => {
 
   it('should throw error when API request fails', async () => {
     const mockResponse = { ok: false, statusText: 'Not Found' };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await expect(getShowDetails(1)).rejects.toThrow('API request failed: Not Found');
   });
 
   it('should throw error when network fails', async () => {
-    vi.mocked(global.fetch).mockRejectedValue(new Error('Network Error'));
+    vi.mocked(globalThis.fetch).mockRejectedValue(new Error('Network Error'));
 
     await expect(getShowDetails(1)).rejects.toThrow('Network Error');
   });
 
   it('should use correct API endpoint', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeShow };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await getShowDetails(42);
 
-    expect(global.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/shows/42');
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/shows/42');
   });
 
   it('should handle show without image', async () => {
     const showWithoutImage = { ...mockTVMazeShow, image: null };
     const mockResponse = { ok: true, json: async () => showWithoutImage };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getShowDetails(1);
 
@@ -210,16 +210,16 @@ describe('getShowDetails', () => {
 
 describe('getEpisodeDetails', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   afterEach(() => {
-    global.fetch = globalFetch;
+    globalThis.fetch = globalFetch;
   });
 
   it('should return transformed episode details', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getEpisodeDetails(1);
 
@@ -237,32 +237,32 @@ describe('getEpisodeDetails', () => {
 
   it('should throw error when API request fails', async () => {
     const mockResponse = { ok: false, statusText: 'Not Found' };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await expect(getEpisodeDetails(1)).rejects.toThrow('API request failed: Not Found');
   });
 
   it('should throw error when network fails', async () => {
-    vi.mocked(global.fetch).mockRejectedValue(new Error('Network Error'));
+    vi.mocked(globalThis.fetch).mockRejectedValue(new Error('Network Error'));
 
     await expect(getEpisodeDetails(1)).rejects.toThrow('Network Error');
   });
 
   it('should use correct API endpoint', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     await getEpisodeDetails(42);
 
-    expect(global.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/episodes/42');
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/episodes/42');
   });
 
   it('should set showId to 0 as per function signature', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await getEpisodeDetails(1);
 
-    expect(result.showId).toBe(0);
+    expect(result?.showId).toBe(0);
   });
 });
