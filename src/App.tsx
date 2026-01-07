@@ -1,10 +1,14 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ShowDetailsPage from './pages/ShowDetailsPage';
+import EpisodeDetailsPage from './pages/EpisodeDetailsPage';
+
 function App() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-8 bg-white rounded-lg shadow-lg">
-        <h1 className="text-4xl font-bold text-blue-600">Hello World</h1>
-      </div>
-    </div>
+    <Routes>
+      <Route path="/" element={<Navigate to="/show" replace />} />
+      <Route path="/show" element={<ShowDetailsPage />} />
+      <Route path="/show/episode/:episodeId" element={<EpisodeDetailsPage />} />
+    </Routes>
   );
 }
 
