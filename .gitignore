@@ -1,0 +1,7 @@
+# See https://vite.dev/config/
+# https://eslint.org/docs/latest/use/configure/configuration-files
+# https://www.typescriptlang.org/tsconfig/
+
+node_modules
+
+dist
