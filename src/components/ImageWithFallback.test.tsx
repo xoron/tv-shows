@@ -41,6 +41,11 @@ describe('ImageWithFallback', () => {
 
     const image = screen.getByAltText('Test image') as HTMLImageElement;
     
+    // Wait for intersection observer
+    await waitFor(() => {
+      expect(image.src).toBeTruthy();
+    });
+    
     // Simulate image error
     fireEvent.error(image);
 
@@ -88,6 +93,51 @@ describe('ImageWithFallback', () => {
 
     const image = screen.getByAltText('Test image');
     expect(image).toHaveAttribute('loading', 'lazy');
+  });
+
+  it('should show loading state initially', async () => {
+    render(
+      <ImageWithFallback
+        src="https://example.com/image.jpg"
+        alt="Test image"
+        fallback="https://placehold.co/600x400"
+      />
+    );
+
+    // Loading indicator should be present initially
+    const loadingIndicator = screen.getByText('Loading...');
+    expect(loadingIndicator).toBeInTheDocument();
+    
+    // Wait for image to load
+    const image = screen.getByAltText('Test image');
+    fireEvent.load(image);
+    
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should handle loading state correctly', async () => {
+    render(
+      <ImageWithFallback
+        src="https://example.com/image.jpg"
+        alt="Test image"
+        fallback="https://placehold.co/600x400"
+      />
+    );
+
+    const image = screen.getByAltText('Test image') as HTMLImageElement;
+    
+    // Simulate image load
+    await waitFor(() => {
+      expect(image.src).toBeTruthy();
+    });
+    
+    fireEvent.load(image);
+    
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
   });
 });
 

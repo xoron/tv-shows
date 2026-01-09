@@ -66,16 +66,14 @@ describe('EpisodeDetailsPage', () => {
   });
 
   describe('Loading State', () => {
-    it('should show loading spinner while fetching episode', async () => {
+    it('should show skeleton loader while fetching episode', async () => {
       vi.mocked(getEpisodeDetails).mockImplementation(() => new Promise(() => {}));
 
       renderWithProviders(<EpisodeDetailsPage />);
 
-      await waitFor(() => {
-        // Check for loading spinner - LoadingSpinner uses role="status" with aria-busy="true"
-      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
-        expect(spinner).toBeInTheDocument();
-      });
+      // Check for skeleton loader - SkeletonLoader uses role="status" with aria-label="Loading content"
+      const skeleton = screen.getByRole('status', { name: 'Loading content' });
+      expect(skeleton).toBeInTheDocument();
     });
   });
 

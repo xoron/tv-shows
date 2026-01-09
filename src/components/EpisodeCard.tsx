@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Episode } from '../types';
 import { FALLBACK_IMAGE_EPISODE } from '../lib/constants';
@@ -9,10 +10,11 @@ interface EpisodeCardProps {
 
 /**
  * Component that displays an episode card with episode information
+ * Memoized to prevent unnecessary re-renders when parent re-renders
  * @param episode - The episode data to display
  * @returns A clickable card component linking to the episode details page
  */
-export default function EpisodeCard({ episode }: EpisodeCardProps) {
+function EpisodeCard({ episode }: EpisodeCardProps) {
   return (
     <Link
       to={`/show/episode/${episode.id}`}
@@ -43,3 +45,5 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
     </Link>
   );
 }
+
+export default memo(EpisodeCard);

@@ -12,14 +12,14 @@ describe('ShowDetailsPage', () => {
   });
 
   describe('Loading State', () => {
-    it('should show loading spinner while fetching show', () => {
+    it('should show skeleton loader while fetching show', () => {
       vi.mocked(searchShow).mockImplementation(() => new Promise(() => {}));
 
       renderWithProviders(<ShowDetailsPage />);
 
-      // Check for loading spinner - LoadingSpinner uses aria-label="Loading show information" when loading show
-      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
-      expect(spinner).toBeInTheDocument();
+      // Check for skeleton loader - SkeletonLoader uses role="status" with aria-label="Loading content"
+      const skeleton = screen.getByRole('status', { name: 'Loading content' });
+      expect(skeleton).toBeInTheDocument();
     });
   });
 
@@ -212,9 +212,9 @@ describe('ShowDetailsPage', () => {
         expect(screen.getByText('Episodes')).toBeInTheDocument();
       });
 
-      // Check for loading spinner - LoadingSpinner uses aria-label="Loading show information" when loading show
-      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
-      expect(spinner).toBeInTheDocument();
+      // Check for skeleton loader - SkeletonLoader uses role="status" with aria-label="Loading content"
+      const skeletons = screen.getAllByRole('status', { name: 'Loading content' });
+      expect(skeletons.length).toBeGreaterThan(0);
     });
 
     it('should render HTML content in description', async () => {

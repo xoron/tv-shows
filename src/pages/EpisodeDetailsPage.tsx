@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { getEpisodeDetails } from '../services/tvmaze';
 import { Episode } from '../types';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { STALE_TIME_EPISODE, FALLBACK_IMAGE_EPISODE } from '../lib/constants';
-import LoadingSpinner from '../components/LoadingSpinner';
+import SkeletonLoader from '../components/SkeletonLoader';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { useFocusOnLoad } from '../hooks/useFocusManagement';
@@ -34,6 +34,28 @@ export default function EpisodeDetailsPage() {
 
   useDocumentTitle(episode?.title);
 
+  // Memoize aria-label strings to prevent recalculation on every render
+  const episodeImageAlt = useMemo(
+    () =>
+      episode
+        ? `Cover image for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`
+        : '',
+    [episode]
+  );
+
+  const episodeSummaryAriaLabel = useMemo(
+    () => (episode ? `Summary for ${episode.title}` : ''),
+    [episode]
+  );
+
+  const episodeLoadedAnnouncement = useMemo(
+    () =>
+      episode
+        ? `Episode details loaded: ${episode.title}, Season ${episode.season}, Episode ${episode.episodeNumber}`
+        : '',
+    [episode]
+  );
+
   const episodeDetailsRef = useRef<HTMLDivElement>(null);
   // Focus episode details when loaded
   useFocusOnLoad(episodeDetailsRef, !isLoading && !!episode);
@@ -44,8 +66,10 @@ export default function EpisodeDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <LoadingSpinner ariaLabel="Loading episode details" />
+      <div className="min-h-screen bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <SkeletonLoader variant="show-details" />
+        </div>
       </div>
     );
   }
@@ -93,13 +117,13 @@ export default function EpisodeDetailsPage() {
           tabIndex={-1}
         >
           <div className="sr-only" aria-live="polite" aria-atomic="true">
-            Episode details loaded: {episode.title}, Season {episode.season}, Episode {episode.episodeNumber}
+            {episodeLoadedAnnouncement}
           </div>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2">
               <ImageWithFallback
                 src={episode.coverImage}
-                alt={`Cover image for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
+                alt={episodeImageAlt}
                 fallback={FALLBACK_IMAGE_EPISODE}
                 className="w-full h-48 object-cover md:h-auto md:w-full"
               />
@@ -122,7 +146,7 @@ export default function EpisodeDetailsPage() {
               <div 
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
                 dangerouslySetInnerHTML={{ __html: episode.summary }}
-                aria-label={`Summary for ${episode.title}`}
+                aria-label={episodeSummaryAriaLabel}
               />
             </div>
           </div>

@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import { searchShow, getShowEpisodes } from '../services/tvmaze';
 import { Show, Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { SHOW_NAME, STALE_TIME_SHOW, STALE_TIME_EPISODE, FALLBACK_IMAGE_SHOW } from '../lib/constants';
-import LoadingSpinner from '../components/LoadingSpinner';
+import SkeletonLoader from '../components/SkeletonLoader';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { useFocusOnLoad } from '../hooks/useFocusManagement';
@@ -37,6 +37,18 @@ export default function ShowDetailsPage() {
 
   useDocumentTitle(show?.title);
 
+  // Memoize aria-label for episodes list to prevent recalculation on every render
+  const episodesListAriaLabel = useMemo(
+    () => `List of ${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`,
+    [episodes.length]
+  );
+
+  // Memoize screen reader announcement for episodes count
+  const episodesCountAnnouncement = useMemo(
+    () => `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'} loaded`,
+    [episodes.length]
+  );
+
   // Focus episodes list when episodes load
   useFocusOnLoad(episodesListRef, !isLoadingEpisodes && episodes.length > 0);
 
@@ -46,8 +58,10 @@ export default function ShowDetailsPage() {
 
   if (isLoadingShow) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <LoadingSpinner ariaLabel="Loading show information" />
+      <div className="min-h-screen bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <SkeletonLoader variant="show-details" />
+        </div>
       </div>
     );
   }
@@ -97,9 +111,17 @@ export default function ShowDetailsPage() {
           {episodesError ? (
             <ErrorAlert title="Error loading episodes" message={episodesError.message} variant="inline" />
         ) : isLoadingEpisodes ? (
-          <div className="flex justify-center py-12">
-            <LoadingSpinner ariaLabel="Loading episodes" />
-          </div>
+          <ul
+            className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            style={{ paddingLeft: 0, paddingRight: 0 }}
+            aria-label="Loading episodes"
+          >
+            {[...Array(6)].map((_, index) => (
+              <li key={index} role="listitem">
+                <SkeletonLoader variant="episode-card" />
+              </li>
+            ))}
+          </ul>
         ) : episodes.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center" role="status" aria-live="polite">
             <p className="text-lg">No episodes available</p>
@@ -107,12 +129,12 @@ export default function ShowDetailsPage() {
         ) : (
           <>
             <div className="sr-only" aria-live="polite" aria-atomic="true">
-              {episodes.length} {episodes.length === 1 ? 'episode' : 'episodes'} loaded
+              {episodesCountAnnouncement}
             </div>
             <ul
               ref={episodesListRef}
               role="list"
-              aria-label={`List of ${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`}
+              aria-label={episodesListAriaLabel}
               className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
               style={{ paddingLeft: 0, paddingRight: 0 }}
               tabIndex={-1}
