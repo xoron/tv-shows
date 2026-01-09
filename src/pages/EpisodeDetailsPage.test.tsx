@@ -72,7 +72,8 @@ describe('EpisodeDetailsPage', () => {
       renderWithProviders(<EpisodeDetailsPage />);
 
       await waitFor(() => {
-        const spinner = document.querySelector('.animate-spin');
+        // Check for loading spinner - LoadingSpinner uses role="status" with aria-busy="true"
+      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
         expect(spinner).toBeInTheDocument();
       });
     });

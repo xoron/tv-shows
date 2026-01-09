@@ -17,7 +17,7 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
     <Link
       to={`/show/episode/${episode.id}`}
       state={{ showId: episode.showId }}
-      className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 min-h-[200px]"
+      className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 min-h-[200px] w-full"
       aria-label={`View details for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
     >
       <ImageWithFallback
@@ -26,7 +26,7 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
         fallback={FALLBACK_IMAGE_EPISODE}
         className="w-full h-48 object-cover"
       />
-      <div className="p-4">
+      <div className="p-4 episode-card-content">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded">
             S{episode.season} E{episode.episodeNumber}

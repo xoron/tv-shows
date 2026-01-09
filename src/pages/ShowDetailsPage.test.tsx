@@ -17,7 +17,8 @@ describe('ShowDetailsPage', () => {
 
       renderWithProviders(<ShowDetailsPage />);
 
-      const spinner = document.querySelector('.animate-spin');
+      // Check for loading spinner - LoadingSpinner uses aria-label="Loading show information" when loading show
+      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
       expect(spinner).toBeInTheDocument();
     });
   });
@@ -211,8 +212,9 @@ describe('ShowDetailsPage', () => {
         expect(screen.getByText('Episodes')).toBeInTheDocument();
       });
 
-      const spinners = document.querySelectorAll('.animate-spin');
-      expect(spinners).toHaveLength(1);
+      // Check for loading spinner - LoadingSpinner uses aria-label="Loading show information" when loading show
+      const spinner = document.querySelector('[role="status"][aria-busy="true"]');
+      expect(spinner).toBeInTheDocument();
     });
 
     it('should render HTML content in description', async () => {

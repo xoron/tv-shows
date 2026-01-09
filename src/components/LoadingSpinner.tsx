@@ -1,3 +1,6 @@
+import Spinner from '@atlaskit/spinner';
+import { Box, xcss } from '@atlaskit/primitives';
+
 /**
  * Loading spinner component with accessibility support
  * @param ariaLabel - The accessible label for the loading spinner
@@ -7,18 +10,19 @@ interface LoadingSpinnerProps {
   ariaLabel: string;
 }
 
+const containerStyles = xcss({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 export default function LoadingSpinner({ ariaLabel }: LoadingSpinnerProps) {
   return (
-    <div className="flex items-center justify-center">
-      <div
-        className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
-        role="status"
-        aria-label={ariaLabel}
-        aria-busy="true"
-      >
-        <span className="sr-only">{ariaLabel}</span>
+    <Box xcss={containerStyles}>
+      <div role="status" aria-label={ariaLabel} aria-busy="true">
+        <Spinner size="large" label={ariaLabel} />
       </div>
-    </div>
+    </Box>
   );
 }
 
