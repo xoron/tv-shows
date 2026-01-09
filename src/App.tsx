@@ -1,7 +1,8 @@
 import { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useFocusManagement } from './hooks/useFocusManagement';
 import LoadingSpinner from './components/LoadingSpinner';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy load page components for code splitting
 const ShowDetailsPage = lazy(() => import('./pages/ShowDetailsPage'));
@@ -9,6 +10,7 @@ const EpisodeDetailsPage = lazy(() => import('./pages/EpisodeDetailsPage'));
 
 function App() {
   useFocusManagement();
+  const location = useLocation();
 
   return (
     <>
@@ -21,19 +23,30 @@ function App() {
         </a>
       </nav>
       <main id="main-content" tabIndex={-1}>
-        <Suspense
-          fallback={
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-              <LoadingSpinner ariaLabel="Loading page" />
-            </div>
-          }
+        <ErrorBoundary
+          resetKeys={[location.pathname]}
+          onError={(error, errorInfo) => {
+            // Log error for monitoring (in production, send to error reporting service)
+            if (process.env.NODE_ENV === 'production') {
+              // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+              console.error('Error caught by boundary:', error, errorInfo);
+            }
+          }}
         >
-          <Routes>
-            <Route path="/" element={<Navigate to="/show" replace />} />
-            <Route path="/show" element={<ShowDetailsPage />} />
-            <Route path="/show/episode/:episodeId" element={<EpisodeDetailsPage />} />
-          </Routes>
-        </Suspense>
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <LoadingSpinner ariaLabel="Loading page" />
+              </div>
+            }
+          >
+            <Routes>
+              <Route path="/" element={<Navigate to="/show" replace />} />
+              <Route path="/show" element={<ShowDetailsPage />} />
+              <Route path="/show/episode/:episodeId" element={<EpisodeDetailsPage />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
     </>
   );
