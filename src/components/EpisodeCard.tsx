@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Episode } from '../types';
 import { FALLBACK_IMAGE_EPISODE } from '../lib/constants';
 import ImageWithFallback from './ImageWithFallback';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 interface EpisodeCardProps {
   episode: Episode;
@@ -39,7 +40,7 @@ function EpisodeCard({ episode }: EpisodeCardProps) {
         </h2>
         <p
           className="text-sm text-gray-600 mt-2 line-clamp-2"
-          dangerouslySetInnerHTML={{ __html: episode.summary }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(episode.summary) }}
         />
       </div>
     </Link>

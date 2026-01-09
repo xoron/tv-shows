@@ -9,6 +9,7 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { useFocusOnLoad } from '../hooks/useFocusManagement';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 /**
  * Page component that displays detailed information about a specific episode
@@ -145,7 +146,7 @@ export default function EpisodeDetailsPage() {
               </h2>
               <div 
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
-                dangerouslySetInnerHTML={{ __html: episode.summary }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(episode.summary) }}
                 aria-label={episodeSummaryAriaLabel}
               />
             </div>

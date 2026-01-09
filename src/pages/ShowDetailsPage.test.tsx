@@ -234,6 +234,45 @@ describe('ShowDetailsPage', () => {
       });
     });
 
+    it('should sanitize HTML and remove script tags', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: '<p>Safe content</p><script>alert("XSS")</script>',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockResolvedValue([]);
+
+      const { container } = renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        // Script tags should be removed
+        const scripts = container.querySelectorAll('script');
+        expect(scripts.length).toBe(0);
+        
+        // Safe content should still be rendered
+        expect(screen.getByText(/Safe content/)).toBeInTheDocument();
+      });
+    });
+
+    it('should sanitize HTML and remove event handlers', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: '<p onclick="alert(\'XSS\')">Click me</p>',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockResolvedValue([]);
+
+      const { container } = renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        const paragraph = container.querySelector('p');
+        expect(paragraph).not.toHaveAttribute('onclick');
+        expect(screen.getByText(/Click me/)).toBeInTheDocument();
+      });
+    });
+
     it('should render "Episodes" heading', async () => {
       vi.mocked(searchShow).mockResolvedValue({
         id: 1,

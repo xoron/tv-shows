@@ -3,9 +3,6 @@ import {
   Episode,
   transformShow,
   transformEpisode,
-  TVMazeShow,
-  TVMazeEpisode,
-  TVMazeSearchResponse,
 } from '../types';
 import {
   isTVMazeSearchResponseArray,

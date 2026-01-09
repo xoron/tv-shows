@@ -9,6 +9,7 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { useFocusOnLoad } from '../hooks/useFocusManagement';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 /**
  * Page component that displays show details and a list of episodes
@@ -96,7 +97,7 @@ export default function ShowDetailsPage() {
               </h1>
               <div
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
-                dangerouslySetInnerHTML={{ __html: show.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(show.description) }}
               />
             </div>
           </div>

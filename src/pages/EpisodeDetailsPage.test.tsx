@@ -251,5 +251,50 @@ describe('EpisodeDetailsPage', () => {
         expect(screen.getByText(/text/)).toBeInTheDocument();
       });
     });
+
+    it('should sanitize HTML and remove script tags', async () => {
+      vi.mocked(getEpisodeDetails).mockResolvedValue({
+        id: 1,
+        showId: 1,
+        season: 1,
+        episodeNumber: 1,
+        title: 'Test Episode',
+        summary: '<p>Safe content</p><script>alert("XSS")</script>',
+        coverImage: null,
+        airdate: '2024-01-01',
+      });
+
+      const { container } = renderWithProviders(<EpisodeDetailsPage />);
+
+      await waitFor(() => {
+        // Script tags should be removed
+        const scripts = container.querySelectorAll('script');
+        expect(scripts.length).toBe(0);
+        
+        // Safe content should still be rendered
+        expect(screen.getByText(/Safe content/)).toBeInTheDocument();
+      });
+    });
+
+    it('should sanitize HTML and remove event handlers', async () => {
+      vi.mocked(getEpisodeDetails).mockResolvedValue({
+        id: 1,
+        showId: 1,
+        season: 1,
+        episodeNumber: 1,
+        title: 'Test Episode',
+        summary: '<p onclick="alert(\'XSS\')">Click me</p>',
+        coverImage: null,
+        airdate: '2024-01-01',
+      });
+
+      const { container } = renderWithProviders(<EpisodeDetailsPage />);
+
+      await waitFor(() => {
+        const paragraph = container.querySelector('p');
+        expect(paragraph).not.toHaveAttribute('onclick');
+        expect(screen.getByText(/Click me/)).toBeInTheDocument();
+      });
+    });
   });
 });
