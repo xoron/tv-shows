@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { searchShow, getShowEpisodes } from '../services/tvmaze';
 import { Show, Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
@@ -15,6 +15,7 @@ import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { useFocusOnLoad } from '../hooks/useFocusManagement';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
+import SearchInput from '../components/SearchInput';
 
 /**
  * Page component that displays show details and a list of episodes
@@ -23,6 +24,8 @@ import { sanitizeHtml } from '../utils/sanitizeHtml';
  */
 export default function ShowDetailsPage() {
   const episodesListRef = useRef<HTMLUListElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const {
     data: show,
     isLoading: isLoadingShow,
@@ -46,16 +49,36 @@ export default function ShowDetailsPage() {
 
   useDocumentTitle(show?.title);
 
+  const filteredEpisodes = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return episodes;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return episodes.filter(
+      (episode) =>
+        episode.title.toLowerCase().includes(query) || episode.summary.toLowerCase().includes(query)
+    );
+  }, [episodes, searchQuery]);
+
+  const isSearching = searchQuery.trim().length > 0;
+
   // Memoize aria-label for episodes list to prevent recalculation on every render
   const episodesListAriaLabel = useMemo(
-    () => `List of ${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`,
-    [episodes.length]
+    () =>
+      isSearching
+        ? `List of ${filteredEpisodes.length} ${filteredEpisodes.length === 1 ? 'matching episode' : 'matching episodes'} for "${searchQuery}"`
+        : `List of ${filteredEpisodes.length} ${filteredEpisodes.length === 1 ? 'episode' : 'episodes'}`,
+    [filteredEpisodes.length, searchQuery, isSearching]
   );
 
   // Memoize screen reader announcement for episodes count
   const episodesCountAnnouncement = useMemo(
-    () => `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'} loaded`,
-    [episodes.length]
+    () =>
+      isSearching
+        ? `${filteredEpisodes.length} ${filteredEpisodes.length === 1 ? 'matching episode' : 'matching episodes'} for "${searchQuery}"`
+        : `${filteredEpisodes.length} ${filteredEpisodes.length === 1 ? 'episode' : 'episodes'} loaded`,
+    [filteredEpisodes.length, searchQuery, isSearching]
   );
 
   // Focus episodes list when episodes load
@@ -114,6 +137,8 @@ export default function ShowDetailsPage() {
             Episodes
           </h2>
 
+          <SearchInput onSearch={setSearchQuery} />
+
           <div aria-live="polite" aria-atomic="true">
             {episodesError ? (
               <ErrorAlert
@@ -133,13 +158,20 @@ export default function ShowDetailsPage() {
                   </li>
                 ))}
               </ul>
-            ) : episodes.length === 0 ? (
+            ) : filteredEpisodes.length === 0 ? (
               <div
                 className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center"
                 role="status"
                 aria-live="polite"
               >
-                <p className="text-lg">No episodes available</p>
+                {isSearching ? (
+                  <>
+                    <p className="text-lg">No episodes match "{searchQuery}"</p>
+                    <p className="text-sm text-gray-500 mt-2">Try adjusting your search terms</p>
+                  </>
+                ) : (
+                  <p className="text-lg">No episodes available</p>
+                )}
               </div>
             ) : (
               <>
@@ -154,7 +186,7 @@ export default function ShowDetailsPage() {
                   style={{ paddingLeft: 0, paddingRight: 0 }}
                   tabIndex={-1}
                 >
-                  {episodes.map((episode) => (
+                  {filteredEpisodes.map((episode) => (
                     <li key={episode.id} role="listitem">
                       <EpisodeCard episode={episode} />
                     </li>

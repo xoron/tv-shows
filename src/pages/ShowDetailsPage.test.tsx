@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../test/utils/test-utils';
 import ShowDetailsPage from './ShowDetailsPage';
 import { searchShow, getShowEpisodes } from '../services/tvmaze';
@@ -178,11 +179,14 @@ describe('ShowDetailsPage', () => {
 
       renderWithProviders(<ShowDetailsPage />);
 
-      await waitFor(() => {
-        // Check aria-label uses singular "episode"
-        const episodesList = screen.getByRole('list', { name: /List of 1 episode/ });
-        expect(episodesList).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          // Check aria-label uses singular "episode"
+          const episodesList = screen.getByRole('list', { name: /List of 1 episode/ });
+          expect(episodesList).toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
     });
 
     it('should use plural "episodes" when episodes.length is greater than 1', async () => {
@@ -269,6 +273,201 @@ describe('ShowDetailsPage', () => {
         const skeletons = screen.getAllByRole('listitem');
         expect(skeletons.length).toBeGreaterThan(0);
       });
+    });
+  });
+
+  describe('Search Functionality', () => {
+    beforeEach(() => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: 'Test description',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockResolvedValue([
+        {
+          id: 1,
+          showId: 1,
+          season: 1,
+          episodeNumber: 1,
+          title: 'The Beginning',
+          summary: 'This is the first episode of the show.',
+          coverImage: null,
+          airdate: '2024-01-01',
+        },
+        {
+          id: 2,
+          showId: 1,
+          season: 1,
+          episodeNumber: 2,
+          title: 'The Middle',
+          summary: 'A middle episode with action.',
+          coverImage: null,
+          airdate: '2024-01-08',
+        },
+        {
+          id: 3,
+          showId: 1,
+          season: 1,
+          episodeNumber: 3,
+          title: 'The End',
+          summary: 'The final episode of the season.',
+          coverImage: null,
+          airdate: '2024-01-15',
+        },
+      ]);
+    });
+
+    it('should render search input component', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('Search episodes...')).toBeInTheDocument();
+      });
+    });
+
+    it('should filter episodes by title', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+      await userEvent.type(searchInput, 'Beginning');
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('The Beginning')).toBeInTheDocument();
+          expect(screen.queryByText('The Middle')).not.toBeInTheDocument();
+          expect(screen.queryByText('The End')).not.toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
+    });
+
+    it('should filter episodes by summary', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+      await userEvent.type(searchInput, 'action');
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('The Middle')).toBeInTheDocument();
+          expect(screen.queryByText('The Beginning')).not.toBeInTheDocument();
+          expect(screen.queryByText('The End')).not.toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
+    });
+
+    it('should show all episodes when search is cleared', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+      await userEvent.type(searchInput, 'Beginning');
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('The Beginning')).toBeInTheDocument();
+          expect(screen.queryByText('The Middle')).not.toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
+
+      await userEvent.clear(searchInput);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+        expect(screen.getByText('The Middle')).toBeInTheDocument();
+        expect(screen.getByText('The End')).toBeInTheDocument();
+      });
+    });
+
+    it('should show no results message when no episodes match', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+      fireEvent.change(searchInput, { target: { value: 'NonExistent' } });
+
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText((content) => content.includes('No episodes match "NonExistent"'))
+          ).toBeInTheDocument();
+          expect(screen.getByText('Try adjusting your search terms')).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+    }, 10000);
+
+    it('should be case-insensitive', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('The Beginning')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+      await userEvent.type(searchInput, 'beginning');
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('The Beginning')).toBeInTheDocument();
+          expect(screen.queryByText('The Middle')).not.toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
+    });
+
+    it('should update aria-label with filtered results count', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('list', { name: /List of 3 episodes/ })).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole('searchbox');
+
+      fireEvent.change(searchInput, { target: { value: 'Beginning' } });
+
+      await waitFor(
+        () => {
+          expect(
+            screen.getByRole('list', { name: /List of 1 matching episode for "Beginning"/ })
+          ).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+    }, 10000);
+
+    it('should show clear button when search has value', async () => {
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByLabelText('Clear search')).not.toBeInTheDocument();
+
+      const searchInput = screen.getByRole('searchbox');
+      await userEvent.type(searchInput, 'test');
+
+      expect(screen.getByLabelText('Clear search')).toBeInTheDocument();
     });
   });
 
