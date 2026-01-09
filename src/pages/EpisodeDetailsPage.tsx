@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
+import { useRef } from 'react';
 import { getEpisodeDetails } from '../services/tvmaze';
 import { Episode } from '../types';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -7,6 +8,7 @@ import { STALE_TIME_EPISODE, FALLBACK_IMAGE_EPISODE } from '../lib/constants';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { useFocusOnLoad } from '../hooks/useFocusManagement';
 
 /**
  * Page component that displays detailed information about a specific episode
@@ -32,6 +34,10 @@ export default function EpisodeDetailsPage() {
 
   useDocumentTitle(episode?.title);
 
+  const episodeDetailsRef = useRef<HTMLDivElement>(null);
+  // Focus episode details when loaded
+  useFocusOnLoad(episodeDetailsRef, !isLoading && !!episode);
+
   if (!episodeId) {
     return <Navigate to="/show" replace />;
   }
@@ -55,30 +61,40 @@ export default function EpisodeDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          to="/show"
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors min-h-[44px] min-w-[44px] p-2"
-          aria-label="Back to show details"
-          aria-current="page"
-        >
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+        <nav aria-label="Breadcrumb navigation">
+          <Link
+            to="/show"
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors min-h-[44px] min-w-[44px] p-2"
+            aria-label="Back to show details"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Show
-        </Link>
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Show
+          </Link>
+        </nav>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden" aria-live="polite" aria-atomic="true">
+        <article
+          ref={episodeDetailsRef}
+          className="bg-white rounded-lg shadow-lg overflow-hidden"
+          aria-live="polite"
+          aria-atomic="true"
+          tabIndex={-1}
+        >
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            Episode details loaded: {episode.title}, Season {episode.season}, Episode {episode.episodeNumber}
+          </div>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2">
               <ImageWithFallback
@@ -89,11 +105,11 @@ export default function EpisodeDetailsPage() {
               />
             </div>
             <div className="md:w-1/2 p-6 md:p-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded">
+              <div className="flex items-center gap-2 mb-4" role="group" aria-label="Episode metadata">
+                <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded" aria-label={`Season ${episode.season}`}>
                   Season {episode.season}
                 </span>
-                <span className="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded">
+                <span className="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded" aria-label={`Episode ${episode.episodeNumber}`}>
                   Episode {episode.episodeNumber}
                 </span>
               </div>
@@ -106,10 +122,11 @@ export default function EpisodeDetailsPage() {
               <div 
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
                 dangerouslySetInnerHTML={{ __html: episode.summary }}
+                aria-label={`Summary for ${episode.title}`}
               />
             </div>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   );

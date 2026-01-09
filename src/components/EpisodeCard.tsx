@@ -32,7 +32,7 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
             S{episode.season} E{episode.episodeNumber}
           </span>
         </div>
-        <h2 className="text-lg font-semibold text-gray-800 line-clamp-1" aria-level={3}>
+        <h2 className="text-lg font-semibold text-gray-800 line-clamp-1">
           {episode.title}
         </h2>
         <p

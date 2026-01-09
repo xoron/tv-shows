@@ -31,6 +31,22 @@ button:focus-visible {
   border-radius: 4px;
 }
 
+/* Enhanced focus indicators for better visibility */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+/* Ensure interactive elements are keyboard accessible */
+[role="button"]:focus-visible,
+[role="link"]:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
 @media (hover: none) {
   *:active {
     opacity: 0.7;

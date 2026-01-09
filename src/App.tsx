@@ -1,8 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ShowDetailsPage from './pages/ShowDetailsPage';
 import EpisodeDetailsPage from './pages/EpisodeDetailsPage';
+import { useFocusManagement } from './hooks/useFocusManagement';
 
 function App() {
+  useFocusManagement();
+
   return (
     <>
       <nav aria-label="Skip navigation">
@@ -13,7 +16,7 @@ function App() {
           Skip to main content
         </a>
       </nav>
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Navigate to="/show" replace />} />
           <Route path="/show" element={<ShowDetailsPage />} />
