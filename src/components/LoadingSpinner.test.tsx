@@ -26,12 +26,13 @@ describe('LoadingSpinner', () => {
     expect(spinner).toHaveAttribute('aria-label', 'Custom loading message');
   });
 
-  it('should render Atlassian Spinner component', () => {
+  it('should render Tailwind spinner component', () => {
     const { container } = render(<LoadingSpinner ariaLabel="Loading test" />);
 
-    // Check that spinner is rendered (Atlassian Spinner creates SVG elements)
+    // Check that spinner is rendered (Tailwind spinner creates SVG elements)
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
+    expect(svg).toHaveClass('animate-spin');
   });
 });
 

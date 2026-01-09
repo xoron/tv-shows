@@ -42,9 +42,10 @@ describe('SkeletonLoader', () => {
   it('should apply custom className', () => {
     const { container } = renderWithProviders(<SkeletonLoader className="custom-class" />);
 
-    // Box component may wrap className, so check if it exists in the DOM tree
-    const skeleton = container.querySelector('[class*="custom-class"]') || container.querySelector('[role="status"]');
+    // Check if custom class is applied to the skeleton element
+    const skeleton = container.querySelector('[role="status"]');
     expect(skeleton).toBeInTheDocument();
+    expect(skeleton).toHaveClass('custom-class');
   });
 
   it('should apply custom width and height', () => {

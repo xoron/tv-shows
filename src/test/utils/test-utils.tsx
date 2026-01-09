@@ -2,7 +2,6 @@ import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import ThemeProvider from '@atlaskit/theme';
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -28,11 +27,9 @@ export function renderWithProviders(
 ) {
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
-      <ThemeProvider.Provider>
-        <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
-        </QueryClientProvider>
-      </ThemeProvider.Provider>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+      </QueryClientProvider>
     );
   }
 
