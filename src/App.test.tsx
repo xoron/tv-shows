@@ -79,7 +79,7 @@ describe('App', () => {
 
     // Navigate to different route
     rerender(<App />);
-    
+
     // Error boundary should reset on route change (via resetKeys)
     await waitFor(() => {
       expect(document.body).toBeInTheDocument();
@@ -88,13 +88,13 @@ describe('App', () => {
 
   it('should call onError callback in production mode when error occurs', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     // Import and test the error handler function directly
     const { handleErrorBoundaryError } = await import('./App');
-    
+
     const testError = new Error('Test error');
     const testErrorInfo = { componentStack: 'Test stack' } as ErrorInfo;
-    
+
     // Note: We can't easily mock import.meta.env in Vitest
     // In test environment, import.meta.env.PROD is false, so console.error won't be called
     // This test verifies the function structure and that it handles errors correctly

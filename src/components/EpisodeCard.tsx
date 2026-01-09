@@ -35,9 +35,7 @@ function EpisodeCard({ episode }: EpisodeCardProps) {
             S{episode.season} E{episode.episodeNumber}
           </span>
         </div>
-        <h2 className="text-lg font-semibold text-gray-800 line-clamp-1">
-          {episode.title}
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-800 line-clamp-1">{episode.title}</h2>
         <p
           className="text-sm text-gray-600 mt-2 line-clamp-2"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(episode.summary) }}

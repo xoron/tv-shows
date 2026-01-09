@@ -86,4 +86,3 @@ describe('sanitizeHtml', () => {
     expect(result).toContain('<h2>Heading 2</h2>');
   });
 });
-

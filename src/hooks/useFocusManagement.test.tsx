@@ -128,4 +128,3 @@ describe('useFocusOnLoad', () => {
     expect(focusSpy).not.toHaveBeenCalled();
   });
 });
-

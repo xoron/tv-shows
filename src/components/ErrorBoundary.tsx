@@ -103,14 +103,20 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
       // Default fallback UI
       return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full" role="alert" aria-live="assertive">
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full"
+            role="alert"
+            aria-live="assertive"
+          >
             <h2 className="text-xl font-bold text-red-600 mb-2">Something went wrong</h2>
             <p className="text-gray-700 mb-4">
               {this.state.error?.message || 'An unexpected error occurred. Please try again.'}
             </p>
             {import.meta.env.DEV && this.state.error && (
               <details className="mb-4">
-                <summary className="text-sm text-gray-600 cursor-pointer mb-2">Error details</summary>
+                <summary className="text-sm text-gray-600 cursor-pointer mb-2">
+                  Error details
+                </summary>
                 <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
                   {this.state.error.stack}
                 </pre>
@@ -131,4 +137,3 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
     return this.props.children;
   }
 }
-

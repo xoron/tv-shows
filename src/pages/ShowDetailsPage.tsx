@@ -4,7 +4,12 @@ import { searchShow, getShowEpisodes } from '../services/tvmaze';
 import { Show, Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { SHOW_NAME, STALE_TIME_SHOW, STALE_TIME_EPISODE, FALLBACK_IMAGE_SHOW } from '../lib/constants';
+import {
+  SHOW_NAME,
+  STALE_TIME_SHOW,
+  STALE_TIME_EPISODE,
+  FALLBACK_IMAGE_SHOW,
+} from '../lib/constants';
 import SkeletonLoader from '../components/SkeletonLoader';
 import ErrorAlert from '../components/ErrorAlert';
 import ImageWithFallback from '../components/ImageWithFallback';
@@ -18,13 +23,21 @@ import { sanitizeHtml } from '../utils/sanitizeHtml';
  */
 export default function ShowDetailsPage() {
   const episodesListRef = useRef<HTMLUListElement>(null);
-  const { data: show, isLoading: isLoadingShow, error: showError } = useQuery<Show | null, Error>({
+  const {
+    data: show,
+    isLoading: isLoadingShow,
+    error: showError,
+  } = useQuery<Show | null, Error>({
     queryKey: ['show', SHOW_NAME],
     queryFn: () => searchShow(SHOW_NAME),
     staleTime: STALE_TIME_SHOW,
   });
 
-  const { data: episodes = [], isLoading: isLoadingEpisodes, error: episodesError } = useQuery<Episode[], Error>({
+  const {
+    data: episodes = [],
+    isLoading: isLoadingEpisodes,
+    error: episodesError,
+  } = useQuery<Episode[], Error>({
     queryKey: ['episodes', show?.id],
     queryFn: () => getShowEpisodes(show!.id),
     enabled: !!show?.id,
@@ -87,9 +100,7 @@ export default function ShowDetailsPage() {
               />
             </div>
             <div className="md:w-2/3 p-6 md:p-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {show.title}
-              </h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{show.title}</h1>
               <div
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(show.description) }}
@@ -103,47 +114,55 @@ export default function ShowDetailsPage() {
             Episodes
           </h2>
 
-        <div aria-live="polite" aria-atomic="true">
-          {episodesError ? (
-            <ErrorAlert title="Error loading episodes" message={episodesError.message} variant="inline" />
-        ) : isLoadingEpisodes ? (
-          <ul
-            className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-            style={{ paddingLeft: 0, paddingRight: 0 }}
-            aria-label="Loading episodes"
-          >
-            {[...Array(6)].map((_, index) => (
-              <li key={index} role="listitem">
-                <SkeletonLoader variant="episode-card" />
-              </li>
-            ))}
-          </ul>
-        ) : episodes.length === 0 ? (
-          <div className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center" role="status" aria-live="polite">
-            <p className="text-lg">No episodes available</p>
+          <div aria-live="polite" aria-atomic="true">
+            {episodesError ? (
+              <ErrorAlert
+                title="Error loading episodes"
+                message={episodesError.message}
+                variant="inline"
+              />
+            ) : isLoadingEpisodes ? (
+              <ul
+                className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+                style={{ paddingLeft: 0, paddingRight: 0 }}
+                aria-label="Loading episodes"
+              >
+                {[...Array(6)].map((_, index) => (
+                  <li key={index} role="listitem">
+                    <SkeletonLoader variant="episode-card" />
+                  </li>
+                ))}
+              </ul>
+            ) : episodes.length === 0 ? (
+              <div
+                className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center"
+                role="status"
+                aria-live="polite"
+              >
+                <p className="text-lg">No episodes available</p>
+              </div>
+            ) : (
+              <>
+                <div className="sr-only" aria-live="polite" aria-atomic="true">
+                  {episodesCountAnnouncement}
+                </div>
+                <ul
+                  ref={episodesListRef}
+                  role="list"
+                  aria-label={episodesListAriaLabel}
+                  className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+                  style={{ paddingLeft: 0, paddingRight: 0 }}
+                  tabIndex={-1}
+                >
+                  {episodes.map((episode) => (
+                    <li key={episode.id} role="listitem">
+                      <EpisodeCard episode={episode} />
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
-        ) : (
-          <>
-            <div className="sr-only" aria-live="polite" aria-atomic="true">
-              {episodesCountAnnouncement}
-            </div>
-            <ul
-              ref={episodesListRef}
-              role="list"
-              aria-label={episodesListAriaLabel}
-              className="episodes-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-              style={{ paddingLeft: 0, paddingRight: 0 }}
-              tabIndex={-1}
-            >
-              {episodes.map((episode) => (
-                <li key={episode.id} role="listitem">
-                  <EpisodeCard episode={episode} />
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-        </div>
         </section>
       </div>
     </div>

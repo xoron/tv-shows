@@ -16,7 +16,12 @@ interface ImageWithFallbackProps {
   className?: string;
 }
 
-export default function ImageWithFallback({ src, alt, fallback, className = '' }: ImageWithFallbackProps) {
+export default function ImageWithFallback({
+  src,
+  alt,
+  fallback,
+  className = '',
+}: ImageWithFallbackProps) {
   const [imgSrc, setImgSrc] = useState<string>(src || fallback);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(!!src);
@@ -63,9 +68,13 @@ export default function ImageWithFallback({ src, alt, fallback, className = '' }
         onLoad={handleLoad}
         onError={handleError}
         loading="lazy"
-        style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.3s ease-in-out', position: 'relative', zIndex: 1 }}
+        style={{
+          opacity: isLoading ? 0 : 1,
+          transition: 'opacity 0.3s ease-in-out',
+          position: 'relative',
+          zIndex: 1,
+        }}
       />
     </div>
   );
 }
-

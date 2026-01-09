@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { transformShow, transformEpisode, Show, Episode } from './index';
-import { mockTVMazeShow, mockTVMazeEpisode, mockTVMazeEpisodeWithoutImage } from '../test/mocks/data';
+import {
+  mockTVMazeShow,
+  mockTVMazeEpisode,
+  mockTVMazeEpisodeWithoutImage,
+} from '../test/mocks/data';
 
 describe('transformShow', () => {
   it('should transform a TVMaze show to Show format with all fields', () => {

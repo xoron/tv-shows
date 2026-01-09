@@ -187,4 +187,3 @@ describe('isTVMazeEpisodeArray', () => {
     expect(isTVMazeEpisodeArray([{ id: 1 }])).toBe(false);
   });
 });
-

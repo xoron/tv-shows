@@ -32,10 +32,7 @@ function App() {
         </a>
       </nav>
       <main id="main-content" tabIndex={-1}>
-        <ErrorBoundary
-          resetKeys={[location.pathname]}
-          onError={handleErrorBoundaryError}
-        >
+        <ErrorBoundary resetKeys={[location.pathname]} onError={handleErrorBoundaryError}>
           <Suspense
             fallback={
               <div className="min-h-screen bg-gray-100 flex items-center justify-center">

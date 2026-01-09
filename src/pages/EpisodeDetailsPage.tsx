@@ -21,7 +21,11 @@ export default function EpisodeDetailsPage() {
   const location = useLocation();
   const showId = (location.state as { showId?: number })?.showId;
 
-  const { data: episode, isLoading, error } = useQuery<Episode | null, Error>({
+  const {
+    data: episode,
+    isLoading,
+    error,
+  } = useQuery<Episode | null, Error>({
     queryKey: ['episode', episodeId, showId],
     queryFn: () => {
       if (!episodeId || !showId) {
@@ -130,21 +134,27 @@ export default function EpisodeDetailsPage() {
               />
             </div>
             <div className="md:w-1/2 p-6 md:p-8">
-              <div className="flex items-center gap-2 mb-4" role="group" aria-label="Episode metadata">
-                <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded" aria-label={`Season ${episode.season}`}>
+              <div
+                className="flex items-center gap-2 mb-4"
+                role="group"
+                aria-label="Episode metadata"
+              >
+                <span
+                  className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded"
+                  aria-label={`Season ${episode.season}`}
+                >
                   Season {episode.season}
                 </span>
-                <span className="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded" aria-label={`Episode ${episode.episodeNumber}`}>
+                <span
+                  className="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded"
+                  aria-label={`Episode ${episode.episodeNumber}`}
+                >
                   Episode {episode.episodeNumber}
                 </span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                {episode.title}
-              </h1>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                Summary
-              </h2>
-              <div 
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">{episode.title}</h1>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">Summary</h2>
+              <div
                 className="text-gray-700 leading-relaxed text-base md:text-lg prose"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(episode.summary) }}
                 aria-label={episodeSummaryAriaLabel}

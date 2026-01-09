@@ -84,7 +84,10 @@ describe('ShowDetailsPage', () => {
 
       await waitFor(() => {
         const image = screen.getByAltText('Cover image for Test Show');
-        expect(image).toHaveAttribute('src', 'https://placehold.co/600x900/666/white?text=No+Image');
+        expect(image).toHaveAttribute(
+          'src',
+          'https://placehold.co/600x900/666/white?text=No+Image'
+        );
       });
     });
 
@@ -364,7 +367,7 @@ describe('ShowDetailsPage', () => {
         // Script tags should be removed
         const scripts = container.querySelectorAll('script');
         expect(scripts.length).toBe(0);
-        
+
         // Safe content should still be rendered
         expect(screen.getByText(/Safe content/)).toBeInTheDocument();
       });

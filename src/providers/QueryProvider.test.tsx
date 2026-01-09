@@ -73,9 +73,7 @@ describe('QueryProvider', () => {
   });
 
   it('should handle null children gracefully', () => {
-    const { container } = render(
-      <QueryProvider>{null}</QueryProvider>
-    );
+    const { container } = render(<QueryProvider>{null}</QueryProvider>);
 
     expect(container).toBeInTheDocument();
   });

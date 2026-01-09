@@ -19,11 +19,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 
 export function renderWithProviders(
   ui: ReactElement,
-  {
-    queryClient = createTestQueryClient(),
-    route = '/',
-    ...renderOptions
-  }: CustomRenderOptions = {}
+  { queryClient = createTestQueryClient(), route = '/', ...renderOptions }: CustomRenderOptions = {}
 ) {
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (

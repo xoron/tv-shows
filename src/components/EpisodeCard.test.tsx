@@ -167,7 +167,7 @@ describe('EpisodeCard', () => {
     // Script tags should be removed
     const scripts = container.querySelectorAll('script');
     expect(scripts.length).toBe(0);
-    
+
     // Safe content should still be rendered
     expect(screen.getByText(/Safe content/)).toBeInTheDocument();
   });

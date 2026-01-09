@@ -12,10 +12,7 @@ export function isTVMazeImage(data: unknown): data is TVMazeImage {
 
   const obj = data as Record<string, unknown>;
 
-  return (
-    typeof obj.medium === 'string' &&
-    typeof obj.original === 'string'
-  );
+  return typeof obj.medium === 'string' && typeof obj.original === 'string';
 }
 
 /**
@@ -73,10 +70,7 @@ export function isTVMazeSearchResponse(data: unknown): data is TVMazeSearchRespo
 
   const obj = data as Record<string, unknown>;
 
-  return (
-    typeof obj.score === 'number' &&
-    isTVMazeShow(obj.show)
-  );
+  return typeof obj.score === 'number' && isTVMazeShow(obj.show);
 }
 
 /**
@@ -96,4 +90,3 @@ export function isTVMazeSearchResponseArray(data: unknown): data is TVMazeSearch
 export function isTVMazeEpisodeArray(data: unknown): data is TVMazeEpisode[] {
   return Array.isArray(data) && data.every((item) => isTVMazeEpisode(item));
 }
-

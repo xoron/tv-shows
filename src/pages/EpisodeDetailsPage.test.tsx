@@ -16,7 +16,15 @@ vi.mock('react-router-dom', async (importOriginal) => {
     ...actual,
     useParams: () => mockUseParams(),
     useLocation: () => mockUseLocation(),
-    Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
+    Link: ({
+      children,
+      to,
+      ...props
+    }: {
+      children: React.ReactNode;
+      to: string;
+      [key: string]: unknown;
+    }) => (
       <a href={to} {...props}>
         {children}
       </a>
@@ -127,7 +135,10 @@ describe('EpisodeDetailsPage', () => {
 
       await waitFor(() => {
         const image = screen.getByAltText('Cover image for Test Episode - Season 1, Episode 1');
-        expect(image).toHaveAttribute('src', 'https://placehold.co/600x400/666/white?text=No+Image');
+        expect(image).toHaveAttribute(
+          'src',
+          'https://placehold.co/600x400/666/white?text=No+Image'
+        );
       });
     });
 
@@ -404,7 +415,7 @@ describe('EpisodeDetailsPage', () => {
         // Script tags should be removed
         const scripts = container.querySelectorAll('script');
         expect(scripts.length).toBe(0);
-        
+
         // Safe content should still be rendered
         expect(screen.getByText(/Safe content/)).toBeInTheDocument();
       });

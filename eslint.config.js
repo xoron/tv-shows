@@ -25,4 +25,25 @@ export default tseslint.config(
       ],
     },
   },
+  // Allow `any` types in test files (common for mocking)
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  // Allow function exports in App.tsx (error handler for testing)
+  {
+    files: ['src/App.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  // Suppress warning for test-utils export *
+  {
+    files: ['src/test/utils/test-utils.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 )

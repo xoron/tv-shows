@@ -35,4 +35,3 @@ describe('LoadingSpinner', () => {
     expect(svg).toHaveClass('animate-spin');
   });
 });
-

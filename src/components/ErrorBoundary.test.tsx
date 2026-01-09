@@ -4,7 +4,13 @@ import userEvent from '@testing-library/user-event';
 import ErrorBoundary from './ErrorBoundary';
 
 // Component that throws an error
-const ThrowError = ({ shouldThrow = false, message = 'Test error' }: { shouldThrow?: boolean; message?: string }) => {
+const ThrowError = ({
+  shouldThrow = false,
+  message = 'Test error',
+}: {
+  shouldThrow?: boolean;
+  message?: string;
+}) => {
   if (shouldThrow) {
     throw new Error(message);
   }
@@ -73,7 +79,7 @@ describe('ErrorBoundary', () => {
   it('should reset error boundary when reset button is clicked', async () => {
     const user = userEvent.setup();
     let shouldThrow = true;
-    
+
     const ThrowErrorControlled = () => {
       if (shouldThrow) {
         throw new Error('Test error');
@@ -105,10 +111,13 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    await waitFor(() => {
-      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
-      expect(screen.getByText('No error')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+        expect(screen.getByText('No error')).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should reset error boundary when resetKeys change', async () => {
@@ -128,10 +137,13 @@ describe('ErrorBoundary', () => {
     );
 
     // Error boundary should reset and render children
-    await waitFor(() => {
-      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
-      expect(screen.getByText('No error')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+        expect(screen.getByText('No error')).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should not reset when resetKeys are empty', () => {
@@ -171,10 +183,13 @@ describe('ErrorBoundary', () => {
     );
 
     // Error boundary should reset and render children
-    await waitFor(() => {
-      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
-      expect(screen.getByText('No error')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+        expect(screen.getByText('No error')).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should use custom fallback when provided', () => {
@@ -267,4 +282,3 @@ describe('ErrorBoundary', () => {
     clearTimeoutSpy.mockRestore();
   });
 });
-

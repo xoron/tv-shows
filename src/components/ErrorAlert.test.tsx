@@ -42,11 +42,12 @@ describe('ErrorAlert', () => {
     });
 
     it('should have inline styling', () => {
-      const { container } = render(<ErrorAlert title="Error Title" message="Error message" variant="inline" />);
+      const { container } = render(
+        <ErrorAlert title="Error Title" message="Error message" variant="inline" />
+      );
 
       const alert = container.querySelector('.bg-red-50');
       expect(alert).toBeInTheDocument();
     });
   });
 });
-

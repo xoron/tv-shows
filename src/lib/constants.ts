@@ -25,4 +25,3 @@ export const DEFAULT_DOCUMENT_TITLE = 'TV Shows - Browse Episodes';
 
 /** Default show name to search for */
 export const SHOW_NAME = 'Powerpuff Girls';
-

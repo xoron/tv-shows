@@ -70,8 +70,8 @@ button:focus-visible,
 }
 
 /* Ensure interactive elements are keyboard accessible */
-[role="button"]:focus-visible,
-[role="link"]:focus-visible {
+[role='button']:focus-visible,
+[role='link']:focus-visible {
   outline: 3px solid #2563eb;
   outline-offset: 2px;
 }
@@ -83,9 +83,9 @@ button:focus-visible,
 }
 
 /* Override Atlassian CSS reset for episode list */
-ul[role="list"],
+ul[role='list'],
 ul.episodes-grid,
-ul[role="list"].grid {
+ul[role='list'].grid {
   padding-left: 0 !important;
   padding-right: 0 !important;
   margin-left: 0 !important;

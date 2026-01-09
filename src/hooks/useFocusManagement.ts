@@ -45,4 +45,3 @@ export function useFocusOnLoad<T extends HTMLElement>(
     }
   }, [condition, elementRef]);
 }
-
