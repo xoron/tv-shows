@@ -15,7 +15,12 @@ export default function ShowDetailsPage() {
 
   const { data: episodes = [], isLoading: isLoadingEpisodes, error: episodesError } = useQuery<Episode[], Error>({
     queryKey: ['episodes', show?.id],
-    queryFn: () => getShowEpisodes(show!.id),
+    queryFn: () => {
+      if (!show?.id) {
+        return Promise.resolve([]);
+      }
+      return getShowEpisodes(show.id);
+    },
     enabled: !!show?.id,
     staleTime: 1000 * 60 * 60,
   });

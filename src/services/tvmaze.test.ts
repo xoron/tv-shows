@@ -90,6 +90,20 @@ describe('searchShow', () => {
 
     await expect(searchShow('TestShow')).rejects.toThrow('Invalid JSON');
   });
+
+  it('should throw error when API returns invalid response structure', async () => {
+    const mockResponse = { ok: true, json: async () => 'invalid' };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(searchShow('TestShow')).rejects.toThrow('Invalid API response: expected array of search results');
+  });
+
+  it('should throw error when API returns array with invalid show data', async () => {
+    const mockResponse = { ok: true, json: async () => [{ score: 1.0, show: 'invalid' }] };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(searchShow('TestShow')).rejects.toThrow('Invalid API response: expected array of search results');
+  });
 });
 
 describe('getShowEpisodes', () => {
@@ -150,6 +164,20 @@ describe('getShowEpisodes', () => {
 
     expect(globalThis.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/shows/42/episodes');
   });
+
+  it('should throw error when API returns invalid response structure', async () => {
+    const mockResponse = { ok: true, json: async () => 'invalid' };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(getShowEpisodes(1)).rejects.toThrow('Invalid API response: expected array of episodes');
+  });
+
+  it('should throw error when API returns array with invalid episode data', async () => {
+    const mockResponse = { ok: true, json: async () => [{ id: 1, invalid: 'data' }] };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(getShowEpisodes(1)).rejects.toThrow('Invalid API response: expected array of episodes');
+  });
 });
 
 describe('getShowDetails', () => {
@@ -206,6 +234,13 @@ describe('getShowDetails', () => {
 
     expect(result.coverImage).toBeNull();
   });
+
+  it('should throw error when API returns invalid response structure', async () => {
+    const mockResponse = { ok: true, json: async () => 'invalid' };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(getShowDetails(1)).rejects.toThrow('Invalid API response: show data is invalid');
+  });
 });
 
 describe('getEpisodeDetails', () => {
@@ -221,11 +256,11 @@ describe('getEpisodeDetails', () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
     vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
-    const result = await getEpisodeDetails(1);
+    const result = await getEpisodeDetails(1, 42);
 
     expect(result).toEqual({
       id: 1,
-      showId: 0,
+      showId: 42,
       season: 1,
       episodeNumber: 1,
       title: 'Test Episode',
@@ -239,30 +274,37 @@ describe('getEpisodeDetails', () => {
     const mockResponse = { ok: false, statusText: 'Not Found' };
     vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
-    await expect(getEpisodeDetails(1)).rejects.toThrow('API request failed: Not Found');
+    await expect(getEpisodeDetails(1, 42)).rejects.toThrow('API request failed: Not Found');
   });
 
   it('should throw error when network fails', async () => {
     vi.mocked(globalThis.fetch).mockRejectedValue(new Error('Network Error'));
 
-    await expect(getEpisodeDetails(1)).rejects.toThrow('Network Error');
+    await expect(getEpisodeDetails(1, 42)).rejects.toThrow('Network Error');
   });
 
   it('should use correct API endpoint', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
     vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
-    await getEpisodeDetails(42);
+    await getEpisodeDetails(42, 1);
 
     expect(globalThis.fetch).toHaveBeenCalledWith('https://api.tvmaze.com/episodes/42');
   });
 
-  it('should set showId to 0 as per function signature', async () => {
+  it('should use provided showId in transformed episode', async () => {
     const mockResponse = { ok: true, json: async () => mockTVMazeEpisode };
     vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
 
-    const result = await getEpisodeDetails(1);
+    const result = await getEpisodeDetails(1, 99);
 
-    expect(result?.showId).toBe(0);
+    expect(result?.showId).toBe(99);
+  });
+
+  it('should throw error when API returns invalid response structure', async () => {
+    const mockResponse = { ok: true, json: async () => 'invalid' };
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);
+
+    await expect(getEpisodeDetails(1, 42)).rejects.toThrow('Invalid API response: episode data is invalid');
   });
 });

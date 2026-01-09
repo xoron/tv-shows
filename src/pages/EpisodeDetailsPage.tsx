@@ -1,16 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { getEpisodeDetails } from '../services/tvmaze';
 import { Episode } from '../types';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function EpisodeDetailsPage() {
   const { episodeId } = useParams<{ episodeId: string }>();
+  const location = useLocation();
+  const showId = (location.state as { showId?: number })?.showId;
 
   const { data: episode, isLoading, error } = useQuery<Episode | null, Error>({
-    queryKey: ['episode', episodeId],
-    queryFn: () => getEpisodeDetails(Number(episodeId)),
-    enabled: !!episodeId,
+    queryKey: ['episode', episodeId, showId],
+    queryFn: () => {
+      if (!episodeId || !showId) {
+        return Promise.resolve(null);
+      }
+      return getEpisodeDetails(Number(episodeId), showId);
+    },
+    enabled: !!episodeId && !!showId,
     staleTime: 1000 * 60 * 60,
   });
 

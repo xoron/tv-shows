@@ -11,6 +11,7 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
   return (
     <Link
       to={`/show/episode/${episode.id}`}
+      state={{ showId: episode.showId }}
       className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 min-h-[200px]"
       aria-label={`View details for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
     >

@@ -8,12 +8,14 @@ vi.mock('../services/tvmaze');
 
 const mockUseParams = vi.fn();
 const mockNavigate = vi.fn();
+const mockUseLocation = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
   return {
     ...actual,
     useParams: () => mockUseParams(),
+    useLocation: () => mockUseLocation(),
     Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
       <a href={to} {...props}>
         {children}
@@ -30,6 +32,7 @@ describe('EpisodeDetailsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseParams.mockReturnValue({ episodeId: '1' });
+    mockUseLocation.mockReturnValue({ state: { showId: 1 } });
   });
 
   afterEach(() => {
@@ -92,7 +95,7 @@ describe('EpisodeDetailsPage', () => {
     it('should render episode details correctly', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',
@@ -112,7 +115,7 @@ describe('EpisodeDetailsPage', () => {
     it('should use fallback image when coverImage is null', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',
@@ -132,7 +135,7 @@ describe('EpisodeDetailsPage', () => {
     it('should display season and episode number badges', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 2,
         episodeNumber: 5,
         title: 'Test Episode',
@@ -152,7 +155,7 @@ describe('EpisodeDetailsPage', () => {
     it('should render "Back to Show" link', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',
@@ -172,10 +175,10 @@ describe('EpisodeDetailsPage', () => {
   });
 
   describe('Query Behavior', () => {
-    it('should call getEpisodeDetails with correct episodeId', async () => {
+    it('should call getEpisodeDetails with correct episodeId and showId', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',
@@ -187,7 +190,7 @@ describe('EpisodeDetailsPage', () => {
       renderWithProviders(<EpisodeDetailsPage />);
 
       await waitFor(() => {
-        expect(getEpisodeDetails).toHaveBeenCalledWith(1);
+        expect(getEpisodeDetails).toHaveBeenCalledWith(1, 1);
       });
     });
 
@@ -201,10 +204,20 @@ describe('EpisodeDetailsPage', () => {
       });
     });
 
+    it('should not call getEpisodeDetails when showId is missing', async () => {
+      mockUseLocation.mockReturnValue({ state: null });
+
+      renderWithProviders(<EpisodeDetailsPage />);
+
+      await waitFor(() => {
+        expect(getEpisodeDetails).not.toHaveBeenCalled();
+      });
+    });
+
     it('should render "Summary" heading', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',
@@ -223,7 +236,7 @@ describe('EpisodeDetailsPage', () => {
     it('should render HTML content in summary', async () => {
       vi.mocked(getEpisodeDetails).mockResolvedValue({
         id: 1,
-        showId: 0,
+        showId: 1,
         season: 1,
         episodeNumber: 1,
         title: 'Test Episode',

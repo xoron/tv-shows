@@ -16,19 +16,19 @@ export interface Episode {
   airdate: string;
 }
 
-interface TVMazeImage {
+export interface TVMazeImage {
   medium: string;
   original: string;
 }
 
-interface TVMazeShow {
+export interface TVMazeShow {
   id: number;
   name: string;
   summary: string;
   image: TVMazeImage | null;
 }
 
-interface TVMazeEpisode {
+export interface TVMazeEpisode {
   id: number;
   season: number;
   number: number;
@@ -36,6 +36,16 @@ interface TVMazeEpisode {
   summary: string;
   image: TVMazeImage | null;
   airdate: string;
+  _embedded?: {
+    show?: {
+      id: number;
+    };
+  };
+}
+
+export interface TVMazeSearchResponse {
+  score: number;
+  show: TVMazeShow;
 }
 
 export function transformShow(show: TVMazeShow): Show {
