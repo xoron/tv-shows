@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, ErrorInfo } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useFocusManagement } from './hooks/useFocusManagement';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -7,6 +7,15 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Lazy load page components for code splitting
 const ShowDetailsPage = lazy(() => import('./pages/ShowDetailsPage'));
 const EpisodeDetailsPage = lazy(() => import('./pages/EpisodeDetailsPage'));
+
+// Extract error handler for testability
+export function handleErrorBoundaryError(error: Error, errorInfo: ErrorInfo): void {
+  // Log error for monitoring (in production, send to error reporting service)
+  if (import.meta.env.PROD) {
+    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+}
 
 function App() {
   useFocusManagement();
@@ -25,13 +34,7 @@ function App() {
       <main id="main-content" tabIndex={-1}>
         <ErrorBoundary
           resetKeys={[location.pathname]}
-          onError={(error, errorInfo) => {
-            // Log error for monitoring (in production, send to error reporting service)
-            if (process.env.NODE_ENV === 'production') {
-              // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
-              console.error('Error caught by boundary:', error, errorInfo);
-            }
-          }}
+          onError={handleErrorBoundaryError}
         >
           <Suspense
             fallback={

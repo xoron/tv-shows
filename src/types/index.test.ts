@@ -44,7 +44,7 @@ describe('transformShow', () => {
     const showWithNullSummary = {
       id: 3,
       name: 'Null Summary Show',
-      summary: null as any,
+      summary: null as unknown as string,
       image: mockTVMazeShow.image,
     };
 
@@ -127,7 +127,7 @@ describe('transformEpisode', () => {
       season: 1,
       number: 3,
       name: 'Null Summary Episode',
-      summary: null as any,
+      summary: null as unknown as string,
       image: mockTVMazeEpisodeWithoutImage.image,
       airdate: '2024-01-15',
     };

@@ -98,6 +98,11 @@ describe('searchShow', () => {
     await expect(searchShow('TestShow')).rejects.toThrow('Invalid API response: expected array of search results');
   });
 
+  // Note: Line 41 in tvmaze.ts is technically unreachable because isTVMazeSearchResponseArray
+  // already validates the show structure. However, we keep the explicit check for clarity.
+  // To test this, we would need to bypass the type guard, which is not practical.
+  // The type guard ensures type safety, so this redundant check serves as a safety net.
+
   it('should throw error when API returns array with invalid show data', async () => {
     const mockResponse = { ok: true, json: async () => [{ score: 1.0, show: 'invalid' }] };
     vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse as any);

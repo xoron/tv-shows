@@ -31,7 +31,7 @@ export function useFocusManagement(enabled: boolean = true) {
  * @param condition - Condition to check before focusing
  */
 export function useFocusOnLoad<T extends HTMLElement>(
-  elementRef: React.RefObject<T>,
+  elementRef: React.RefObject<T | null>,
   condition: boolean = true
 ) {
   useEffect(() => {

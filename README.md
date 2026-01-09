@@ -19,7 +19,8 @@ The application will be available at `http://localhost:5173` (or the port Vite a
 - **Vite**: Fast build tool and dev server for optimal developer experience
 - **TanStack Query (React Query)**: Handles server state, caching, and data synchronization
 - **React Router**: Client-side routing for navigation between show and episode pages
-- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development (exclusively used, no component libraries)
+- **DOMPurify**: HTML sanitization library for XSS prevention
 - **Vitest**: Fast unit testing framework with excellent TypeScript support
 - **MSW (Mock Service Worker)**: API mocking for reliable testing
 
@@ -36,7 +37,11 @@ The application will be available at `http://localhost:5173` (or the port Vite a
 
 4. **Component Composition**: Small, focused components (e.g., `EpisodeCard`) promote reusability and testability.
 
-5. **Custom Hooks**: Domain-specific hooks like `useDocumentTitle` encapsulate side effects and improve code organization.
+5. **Custom Hooks**: Domain-specific hooks like `useDocumentTitle` and `useFocusManagement` encapsulate side effects and improve code organization.
+
+6. **Error Boundaries**: Route-level error boundaries provide graceful error handling and recovery, preventing application crashes from propagating.
+
+7. **HTML Sanitization**: All user-provided HTML content is sanitized before rendering to prevent XSS attacks, ensuring secure content display.
 
 ### Data Fetching Strategy
 
@@ -44,19 +49,21 @@ The application will be available at `http://localhost:5173` (or the port Vite a
 - **Conditional Queries**: Episodes query is only enabled after show data is loaded, preventing unnecessary API calls
 - **Optimistic Caching**: Configured stale times (30min for shows, 60min for episodes) reduce API load while maintaining reasonable freshness
 
+## Security Features
+
+1. **HTML Sanitization**: All HTML content from the API is sanitized using DOMPurify before rendering to prevent XSS attacks. The `sanitizeHtml` utility function ensures only safe HTML tags and attributes are allowed.
+
+2. **Error Boundaries**: React error boundaries are implemented at the route level to catch and handle component errors gracefully, preventing the entire application from crashing.
+
 ## Key Trade-offs
 
 1. **Hardcoded Show Search**: The app currently searches for "Powerpuff Girls" by default rather than providing a search interface. This was a pragmatic choice to focus on core functionality (show/episode display) over search UX.
 
-2. **Direct HTML Rendering**: Episode summaries use `dangerouslySetInnerHTML` without sanitization. This was chosen for simplicity, but in production would require a sanitization library like DOMPurify.
+2. **Basic Loading States**: Loading indicators use Tailwind CSS spinners and skeleton loaders. More sophisticated progressive loading could improve perceived performance.
 
-3. **No Error Boundaries**: Errors are handled at the component level rather than with React error boundaries. This works for the current scope but limits graceful degradation.
+3. **No Pagination**: All episodes are loaded at once. For shows with hundreds of episodes, this could impact performance, but simplifies the implementation.
 
-4. **Basic Loading States**: Loading indicators are simple spinners. More sophisticated skeleton screens or progressive loading could improve perceived performance.
-
-5. **No Pagination**: All episodes are loaded at once. For shows with hundreds of episodes, this could impact performance, but simplifies the implementation.
-
-6. **Limited Error Recovery**: Failed requests show error messages but don't provide retry mechanisms beyond React Query's automatic retries.
+4. **Limited Error Recovery**: Failed requests show error messages but don't provide retry mechanisms beyond React Query's automatic retries and error boundary reset functionality.
 
 ## What Would Be Improved With More Time
 
@@ -67,8 +74,6 @@ The application will be available at `http://localhost:5173` (or the port Vite a
 - **Episode Ratings**: Display and allow user ratings for episodes
 
 ### Technical Improvements
-- **HTML Sanitization**: Integrate DOMPurify to safely render HTML content from API
-- **Error Boundaries**: Add React error boundaries for better error isolation and recovery
 - **Image Optimization**: 
   - Implement proper image lazy loading with intersection observer
   - Add image error handling with fallbacks
@@ -95,7 +100,6 @@ The application will be available at `http://localhost:5173` (or the port Vite a
   - Request cancellation for stale requests
   - Offline support with service workers
 - **UI/UX**:
-  - Skeleton screens instead of spinners
   - Progressive image loading
   - Smooth page transitions
   - Toast notifications for user actions

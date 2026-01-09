@@ -68,6 +68,26 @@ describe('useFocusManagement', () => {
 
     expect(focusSpy).not.toHaveBeenCalled();
   });
+
+  it('should handle missing main-content element gracefully', () => {
+    // Remove main-content element if it exists
+    const existingMainContent = document.getElementById('main-content');
+    if (existingMainContent) {
+      document.body.removeChild(existingMainContent);
+    }
+
+    // Should not throw error when element doesn't exist
+    expect(() => {
+      renderHook(() => useFocusManagement(), {
+        wrapper: BrowserRouter,
+      });
+    }).not.toThrow();
+
+    // Restore main-content element for other tests
+    const mainContent = document.createElement('main');
+    mainContent.id = 'main-content';
+    document.body.appendChild(mainContent);
+  });
 });
 
 describe('useFocusOnLoad', () => {
@@ -100,7 +120,7 @@ describe('useFocusOnLoad', () => {
   });
 
   it('should not focus when ref is null', () => {
-    const ref = { current: null };
+    const ref = { current: null } as React.RefObject<HTMLElement | null>;
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
 
     renderHook(() => useFocusOnLoad(ref, true));

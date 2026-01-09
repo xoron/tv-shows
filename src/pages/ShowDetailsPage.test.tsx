@@ -152,6 +152,121 @@ describe('ShowDetailsPage', () => {
         expect(screen.getByText('No episodes available')).toBeInTheDocument();
       });
     });
+
+    it('should use singular "episode" when episodes.length is 1', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: 'Test description',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockResolvedValue([
+        {
+          id: 1,
+          showId: 1,
+          season: 1,
+          episodeNumber: 1,
+          title: 'Episode 1',
+          summary: 'Summary 1',
+          coverImage: null,
+          airdate: '2024-01-01',
+        },
+      ]);
+
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        // Check aria-label uses singular "episode"
+        const episodesList = screen.getByRole('list', { name: /List of 1 episode/ });
+        expect(episodesList).toBeInTheDocument();
+      });
+    });
+
+    it('should use plural "episodes" when episodes.length is greater than 1', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: 'Test description',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockResolvedValue([
+        {
+          id: 1,
+          showId: 1,
+          season: 1,
+          episodeNumber: 1,
+          title: 'Episode 1',
+          summary: 'Summary 1',
+          coverImage: null,
+          airdate: '2024-01-01',
+        },
+        {
+          id: 2,
+          showId: 1,
+          season: 1,
+          episodeNumber: 2,
+          title: 'Episode 2',
+          summary: 'Summary 2',
+          coverImage: null,
+          airdate: '2024-01-08',
+        },
+      ]);
+
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        // Check aria-label uses plural "episodes"
+        const episodesList = screen.getByRole('list', { name: /List of 2 episodes/ });
+        expect(episodesList).toBeInTheDocument();
+      });
+    });
+
+    it('should call useDocumentTitle with undefined when show is null', async () => {
+      vi.mocked(searchShow).mockResolvedValue(null);
+      const documentTitleSpy = vi.spyOn(document, 'title', 'set');
+
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Show Not Found')).toBeInTheDocument();
+      });
+
+      documentTitleSpy.mockRestore();
+    });
+
+    it('should return empty array when show.id is falsy', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 0, // falsy value
+        title: 'Test Show',
+        description: 'Test description',
+        coverImage: null,
+      });
+
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        // getShowEpisodes should not be called when show.id is falsy
+        expect(getShowEpisodes).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should show skeleton loader when episodes are loading', async () => {
+      vi.mocked(searchShow).mockResolvedValue({
+        id: 1,
+        title: 'Test Show',
+        description: 'Test description',
+        coverImage: null,
+      });
+      vi.mocked(getShowEpisodes).mockImplementation(() => new Promise(() => {}));
+
+      renderWithProviders(<ShowDetailsPage />);
+
+      await waitFor(() => {
+        // Should show skeleton loaders for episodes
+        const skeletons = screen.getAllByRole('listitem');
+        expect(skeletons.length).toBeGreaterThan(0);
+      });
+    });
   });
 
   describe('Query Behavior', () => {

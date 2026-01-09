@@ -37,10 +37,7 @@ export async function searchShow(query: string): Promise<Show | null> {
       return null;
     }
     
-    if (!isTVMazeShow(data[0].show)) {
-      throw new Error('Invalid API response: show data is invalid');
-    }
-    
+    // Type guard already validates show structure
     return transformShow(data[0].show);
   } catch (error) {
     console.error('Error searching for show:', error);
