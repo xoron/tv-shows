@@ -1,3 +1,6 @@
+/**
+ * Represents a TV show in the application domain model
+ */
 export interface Show {
   id: number;
   title: string;
@@ -5,6 +8,9 @@ export interface Show {
   coverImage: string | null;
 }
 
+/**
+ * Represents an episode in the application domain model
+ */
 export interface Episode {
   id: number;
   showId: number;
@@ -16,11 +22,17 @@ export interface Episode {
   airdate: string;
 }
 
+/**
+ * Represents an image object from the TVMaze API
+ */
 export interface TVMazeImage {
   medium: string;
   original: string;
 }
 
+/**
+ * Represents a show object from the TVMaze API
+ */
 export interface TVMazeShow {
   id: number;
   name: string;
@@ -28,6 +40,9 @@ export interface TVMazeShow {
   image: TVMazeImage | null;
 }
 
+/**
+ * Represents an episode object from the TVMaze API
+ */
 export interface TVMazeEpisode {
   id: number;
   season: number;
@@ -43,11 +58,19 @@ export interface TVMazeEpisode {
   };
 }
 
+/**
+ * Represents a search response from the TVMaze API
+ */
 export interface TVMazeSearchResponse {
   score: number;
   show: TVMazeShow;
 }
 
+/**
+ * Transforms a TVMaze show object into the application's Show model
+ * @param show - The TVMaze show object to transform
+ * @returns The transformed Show object
+ */
 export function transformShow(show: TVMazeShow): Show {
   return {
     id: show.id,
@@ -57,6 +80,12 @@ export function transformShow(show: TVMazeShow): Show {
   };
 }
 
+/**
+ * Transforms a TVMaze episode object into the application's Episode model
+ * @param episode - The TVMaze episode object to transform
+ * @param showId - The ID of the show this episode belongs to
+ * @returns The transformed Episode object
+ */
 export function transformEpisode(episode: TVMazeEpisode, showId: number): Episode {
   return {
     id: episode.id,

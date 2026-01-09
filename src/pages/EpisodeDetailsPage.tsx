@@ -3,7 +3,16 @@ import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { getEpisodeDetails } from '../services/tvmaze';
 import { Episode } from '../types';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { STALE_TIME_EPISODE, FALLBACK_IMAGE_EPISODE } from '../lib/constants';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorAlert from '../components/ErrorAlert';
+import ImageWithFallback from '../components/ImageWithFallback';
 
+/**
+ * Page component that displays detailed information about a specific episode
+ * Fetches episode details from the TVMaze API using the episodeId from route params
+ * @returns The episode details page
+ */
 export default function EpisodeDetailsPage() {
   const { episodeId } = useParams<{ episodeId: string }>();
   const location = useLocation();
@@ -18,7 +27,7 @@ export default function EpisodeDetailsPage() {
       return getEpisodeDetails(Number(episodeId), showId);
     },
     enabled: !!episodeId && !!showId,
-    staleTime: 1000 * 60 * 60,
+    staleTime: STALE_TIME_EPISODE,
   });
 
   useDocumentTitle(episode?.title);
@@ -30,34 +39,18 @@ export default function EpisodeDetailsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div
-          className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
-          role="status"
-          aria-label="Loading episode details"
-          aria-busy="true"
-        >
-          <span className="sr-only">Loading episode details</span>
-        </div>
+        <LoadingSpinner ariaLabel="Loading episode details" />
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md" role="alert" aria-live="assertive">
-          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Episode</h2>
-          <p className="text-gray-700">{error.message}</p>
-        </div>
-      </div>
-    );
+    return <ErrorAlert title="Error Loading Episode" message={error.message} />;
   }
 
   if (!episode) {
     return <Navigate to="/show" replace />;
   }
-
-  const fallbackImage = 'https://placehold.co/600x400/666/white?text=No+Image';
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -88,9 +81,10 @@ export default function EpisodeDetailsPage() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden" aria-live="polite" aria-atomic="true">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2">
-              <img
-                src={episode.coverImage || fallbackImage}
+              <ImageWithFallback
+                src={episode.coverImage}
                 alt={`Cover image for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
+                fallback={FALLBACK_IMAGE_EPISODE}
                 className="w-full h-48 object-cover md:h-auto md:w-full"
               />
             </div>

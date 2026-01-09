@@ -3,14 +3,21 @@ import { searchShow, getShowEpisodes } from '../services/tvmaze';
 import { Show, Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { SHOW_NAME, STALE_TIME_SHOW, STALE_TIME_EPISODE, FALLBACK_IMAGE_SHOW } from '../lib/constants';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorAlert from '../components/ErrorAlert';
+import ImageWithFallback from '../components/ImageWithFallback';
 
-const SHOW_NAME = 'Powerpuff Girls';
-
+/**
+ * Page component that displays show details and a list of episodes
+ * Fetches show information and episodes from the TVMaze API
+ * @returns The show details page with episodes grid
+ */
 export default function ShowDetailsPage() {
   const { data: show, isLoading: isLoadingShow, error: showError } = useQuery<Show | null, Error>({
     queryKey: ['show', SHOW_NAME],
     queryFn: () => searchShow(SHOW_NAME),
-    staleTime: 1000 * 60 * 30,
+    staleTime: STALE_TIME_SHOW,
   });
 
   const { data: episodes = [], isLoading: isLoadingEpisodes, error: episodesError } = useQuery<Episode[], Error>({
@@ -22,33 +29,19 @@ export default function ShowDetailsPage() {
       return getShowEpisodes(show.id);
     },
     enabled: !!show?.id,
-    staleTime: 1000 * 60 * 60,
+    staleTime: STALE_TIME_EPISODE,
   });
 
   useDocumentTitle(show?.title);
 
   if (showError) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md" role="alert" aria-live="assertive">
-          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Show</h2>
-          <p className="text-gray-700">{showError.message}</p>
-        </div>
-      </div>
-    );
+    return <ErrorAlert title="Error Loading Show" message={showError.message} />;
   }
 
   if (isLoadingShow) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div
-          className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
-          role="status"
-          aria-label="Loading show information"
-          aria-busy="true"
-        >
-          <span className="sr-only">Loading show information</span>
-        </div>
+        <LoadingSpinner ariaLabel="Loading show information" />
       </div>
     );
   }
@@ -64,17 +57,16 @@ export default function ShowDetailsPage() {
     );
   }
 
-  const fallbackImage = 'https://placehold.co/600x900/666/white?text=No+Image';
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/3">
-              <img
-                src={show.coverImage || fallbackImage}
+              <ImageWithFallback
+                src={show.coverImage}
                 alt={`Cover image for ${show.title}`}
+                fallback={FALLBACK_IMAGE_SHOW}
                 className="w-full h-64 object-cover md:h-auto md:w-full"
               />
             </div>
@@ -96,20 +88,10 @@ export default function ShowDetailsPage() {
 
         <div aria-live="polite" aria-atomic="true">
           {episodesError ? (
-          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6" role="alert" aria-live="assertive">
-            <p className="font-semibold">Error loading episodes</p>
-            <p className="text-sm">{episodesError.message}</p>
-          </div>
+            <ErrorAlert title="Error loading episodes" message={episodesError.message} variant="inline" />
         ) : isLoadingEpisodes ? (
           <div className="flex justify-center py-12">
-            <div
-              className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
-              role="status"
-              aria-label="Loading episodes"
-              aria-busy="true"
-            >
-              <span className="sr-only">Loading episodes</span>
-            </div>
+            <LoadingSpinner ariaLabel="Loading episodes" />
           </div>
         ) : episodes.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 text-gray-600 p-8 rounded-lg text-center" role="status">

@@ -1,12 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Episode } from '../types';
+import { FALLBACK_IMAGE_EPISODE } from '../lib/constants';
+import ImageWithFallback from './ImageWithFallback';
 
 interface EpisodeCardProps {
   episode: Episode;
 }
 
-const fallbackImage = 'https://placehold.co/600x400/666/white?text=No+Image';
-
+/**
+ * Component that displays an episode card with episode information
+ * @param episode - The episode data to display
+ * @returns A clickable card component linking to the episode details page
+ */
 export default function EpisodeCard({ episode }: EpisodeCardProps) {
   return (
     <Link
@@ -15,11 +20,11 @@ export default function EpisodeCard({ episode }: EpisodeCardProps) {
       className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 min-h-[200px]"
       aria-label={`View details for ${episode.title} - Season ${episode.season}, Episode ${episode.episodeNumber}`}
     >
-      <img
-        src={episode.coverImage || fallbackImage}
+      <ImageWithFallback
+        src={episode.coverImage}
         alt={`Cover image for ${episode.title}`}
+        fallback={FALLBACK_IMAGE_EPISODE}
         className="w-full h-48 object-cover"
-        loading="lazy"
       />
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">

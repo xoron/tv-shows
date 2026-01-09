@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { queryClient } from './queryClient';
+import { STALE_TIME_DEFAULT, GC_TIME_DEFAULT } from './constants';
 
 describe('queryClient', () => {
   it('should be a QueryClient instance', () => {
@@ -11,23 +12,23 @@ describe('queryClient', () => {
     const defaultOptions = queryClient.getDefaultOptions().queries;
 
     expect(defaultOptions).toBeDefined();
-    expect(defaultOptions?.staleTime).toBe(1000 * 60 * 5);
-    expect(defaultOptions?.gcTime).toBe(1000 * 60 * 30);
+    expect(defaultOptions?.staleTime).toBe(STALE_TIME_DEFAULT);
+    expect(defaultOptions?.gcTime).toBe(GC_TIME_DEFAULT);
     expect(defaultOptions?.refetchOnWindowFocus).toBe(false);
     expect(defaultOptions?.refetchOnReconnect).toBe(false);
     expect(defaultOptions?.retry).toBe(2);
   });
 
-  it('should have staleTime set to 5 minutes', () => {
+  it('should have staleTime set to default constant', () => {
     const defaultOptions = queryClient.getDefaultOptions().queries;
 
-    expect(defaultOptions?.staleTime).toBe(300000);
+    expect(defaultOptions?.staleTime).toBe(STALE_TIME_DEFAULT);
   });
 
-  it('should have gcTime set to 30 minutes', () => {
+  it('should have gcTime set to default constant', () => {
     const defaultOptions = queryClient.getDefaultOptions().queries;
 
-    expect(defaultOptions?.gcTime).toBe(1800000);
+    expect(defaultOptions?.gcTime).toBe(GC_TIME_DEFAULT);
   });
 
   it('should have refetchOnWindowFocus disabled', () => {
